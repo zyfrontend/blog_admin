@@ -13,7 +13,6 @@ export default function LoginForm() {
   const [errorMessage, setErrorMessage] = useState('')
   const [loading, setLoading] = useState(false)
   const [loginParams, setLoginParams, removeLoginParams] = useStorage('loginParams')
-
   const t = useLocale(locale)
 
   const [rememberPassword, setRememberPassword] = useState(!!loginParams)
@@ -49,7 +48,7 @@ export default function LoginForm() {
       })
   }
 
-  function onSubmitClick() {
+  async function onSubmitClick() {
     formRef.current.validate().then(values => {
       login(values)
     })
@@ -76,14 +75,29 @@ export default function LoginForm() {
         ref={formRef}
         initialValues={{ userName: 'admin', password: 'admin' }}
       >
-        <Form.Item field="userName" rules={[{ required: true, message: t['login.form.userName.errMsg'] }]}>
+        <Form.Item field="userName" rules={[
+          { required: true, message: '请输入用户名' },
+          {
+            match: /^[\u4E00-\u9FA5A-Za-z0-9_]{5,20}$/,
+            message: '用户名5-20位'
+            // message: locale['login.p_userName_pattern'],
+          },
+        ]}>
           <Input
             prefix={<IconUser />}
             placeholder={t['login.form.userName.placeholder']}
             onPressEnter={onSubmitClick}
           />
         </Form.Item>
-        <Form.Item field="password" rules={[{ required: true, message: t['login.form.password.errMsg'] }]}>
+        <Form.Item field="password" rules={[
+          { required: true, message: '请输入密码' },
+          {
+            match: /^[A-Za-z0-9_]{6,20}$/,
+            message: '密码6-20位数字字母下划线组合'
+            // message: locale['login.p_password_pattern'],
+
+          },
+        ]}>
           <Input.Password
             prefix={<IconLock />}
             placeholder={t['login.form.password.placeholder']}

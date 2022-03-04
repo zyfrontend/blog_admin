@@ -46,7 +46,7 @@ if (!isSSR) {
             msg: '密码不能为空',
           }
         }
-        if (userName === 'admin' && password === 'admin') {
+        if (userName === 'admin' && password === '123456') {
           return {
             status: 'ok',
           }

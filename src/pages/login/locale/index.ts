@@ -16,6 +16,11 @@ const i18n = {
     'login.banner.subSlogan2': 'Internationalization, routing configuration, state management everything',
     'login.banner.slogan3': 'Access visualization enhancement tool AUX',
     'login.banner.subSlogan3': 'Realize flexible block development',
+    'login.p_userName': 'Please input user name',
+    'login.p_userName_pattern': 'user name 5-20 bits',
+    'login.p_password_pattern': 'Password 6-20 digits, alphanumeric and underline combination ',
+    'login.p_password': 'Please input password',
+    'login.login': 'Login',
   },
   'zh-CN': {
     'login.form.title': '博客管理系统登录',
@@ -34,6 +39,11 @@ const i18n = {
     'login.banner.subSlogan2': '国际化，路由配置，状态管理应有尽有',
     'login.banner.slogan3': '接入可视化增强工具AUX',
     'login.banner.subSlogan3': '实现灵活的区块式开发',
+    'login.p_userName': '请输入用户名',
+    'login.p_userName_pattern': '用户名5-20位',
+    'login.p_password_pattern': '密码6-20位数字字母下划线组合',
+    'login.p_password': '请输入密码',
+    'login.login': '登录',
   },
 }
 
