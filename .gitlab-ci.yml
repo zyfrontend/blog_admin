@@ -28,7 +28,7 @@ build:
   tags:
     - deploy
   script:
-    - yarn build
+    - yarn prepublishOnly
   # 将此阶段产物传递至下一阶段
   artifacts:
     paths:
