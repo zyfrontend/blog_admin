@@ -1,3 +1,3 @@
-export default () => {
-  return !!localStorage.getItem('token');
-};
+export default function checkLogin() {
+  return localStorage.getItem('userStatus') === 'login'
+}

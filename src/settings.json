@@ -4,5 +4,7 @@
   "menu": true,
   "footer": true,
   "themeColor": "#165DFF",
-  "menuWidth": 220
+  "menuWidth": 220,
+  "name": "frontendzy",
+  "avatar": "https://zyfullstack-images.oss-cn-shanghai.aliyuncs.com/img/202201101407139.png"
 }
