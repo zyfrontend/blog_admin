@@ -1,94 +1,89 @@
-import './style/global.less'
-import React, { useEffect } from 'react'
-import ReactDOM from 'react-dom'
-import { createStore } from 'redux'
-import { Provider } from 'react-redux'
-import { ConfigProvider } from '@arco-design/web-react'
-import zhCN from '@arco-design/web-react/es/locale/zh-CN'
-import enUS from '@arco-design/web-react/es/locale/en-US'
-import { BrowserRouter, Switch, Route } from 'react-router-dom'
-import axios from 'axios'
-import rootReducer from './store'
-import PageLayout from './layout'
-import { GlobalContext } from './context'
-import Login from './pages/login'
-import checkLogin from './utils/checkLogin'
-import changeTheme from './utils/changeTheme'
-import useStorage from './utils/useStorage'
-import './mock'
+import React, { useState, useEffect } from 'react';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
+import { ConfigProvider } from '@arco-design/web-react';
+import zhCN from '@arco-design/web-react/es/locale/zh-CN';
+import enUS from '@arco-design/web-react/es/locale/en-US';
+import ReactDOM from 'react-dom';
+import { Router, Switch, Route } from 'react-router-dom';
+// import axios from 'axios';
+import rootReducer from './redux';
+import history from './history';
+import PageLayout from './layout/page-layout';
+import Setting from './components/Settings';
+import { GlobalContext } from './context';
+import './style/index.less';
+import './mock';
+import Login from './pages/login';
+import checkLogin from './utils/checkLogin';
 
-const store = createStore(rootReducer)
+const store = createStore(rootReducer, (window as any).__REDUX_DEVTOOLS_EXTENSION__ && (window as any).__REDUX_DEVTOOLS_EXTENSION__());
 
 function Index() {
-  const [lang, setLang] = useStorage('arco-lang', 'en-US')
-  const [theme, setTheme] = useStorage('arco-theme', 'light')
+  const localeName = localStorage.getItem('arco-lang') || 'zh-CN';
+
+  if (!localStorage.getItem('arco-lang')) {
+    localStorage.setItem('arco-lang', localeName);
+  }
+
+  const [locale, setLocale] = useState();
+
+  async function fetchLocale(ln?: string) {
+    const locale = (await import(`./locale/${ln || localeName}`)).default;
+    setLocale(locale);
+  }
 
   function getArcoLocale() {
-    switch (lang) {
+    switch (localeName) {
       case 'zh-CN':
-        return zhCN
+        return zhCN;
       case 'en-US':
-        return enUS
+        return enUS;
       default:
-        return zhCN
+        return zhCN;
     }
   }
 
-  function fetchUserInfo() {
-    axios.get('/api/user/userInfo').then(res => {
-      store.dispatch({
-        type: 'update-userInfo',
-        payload: { userInfo: res.data },
-      })
-    })
-  }
+  // function fetchUserInfo() {
+  //   axios.get('/api/user/userInfo').then((res) => {
+  //     store.dispatch({
+  //       type: 'update-userInfo',
+  //       payload: { userInfo: res.data },
+  //     });
+  //   });
+  // }
+
+  useEffect(() => {
+    fetchLocale();
+  }, []);
 
   useEffect(() => {
     if (checkLogin()) {
-      fetchUserInfo()
-    } else if (window.location.pathname.replace(/\//g, '') !== 'adminlogin') {
-      window.location.pathname = '/admin/login'
+      // fetchUserInfo();
+    } else {
+      history.push('/admin/login');
     }
-  }, [])
-
-  useEffect(() => {
-    changeTheme(theme)
-  }, [theme])
+  }, []);
 
   const contextValue = {
-    lang,
-    setLang,
-    theme,
-    setTheme,
-  }
+    locale,
+  };
 
-  return (
-    <BrowserRouter>
-      <ConfigProvider
-        locale={getArcoLocale()}
-        componentConfig={{
-          Card: {
-            bordered: false,
-          },
-          List: {
-            bordered: false,
-          },
-          Table: {
-            border: false,
-          },
-        }}
-      >
+  return locale ? (
+    <Router history={history}>
+      <ConfigProvider locale={getArcoLocale()}>
         <Provider store={store}>
           <GlobalContext.Provider value={contextValue}>
             <Switch>
               <Route path="/admin/login" component={Login} />
               <Route path="/" component={PageLayout} />
             </Switch>
+            <Setting />
           </GlobalContext.Provider>
         </Provider>
       </ConfigProvider>
-    </BrowserRouter>
-  )
+    </Router>
+  ) : null;
 }
 
-ReactDOM.render(<Index />, document.getElementById('root'))
+ReactDOM.render(<Index />, document.getElementById('root'));

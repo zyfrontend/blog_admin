@@ -1,26 +1,20 @@
-import React, { useEffect } from 'react'
-import Footer from '@/components/Footer'
-import Logo from '@/assets/logo.svg'
-import LoginForm from './form'
-import LoginBanner from './banner'
-import styles from './style/index.module.less'
+import React, { useEffect } from 'react';
+import Footer from '../../components/Footer';
+import LoginForm from './form';
+import Logo from '../../assets/logo.svg';
 
-function Login() {
+import styles from './style/index.module.less';
+
+export default () => {
   useEffect(() => {
-    document.body.setAttribute('arco-theme', 'light')
-  }, [])
-
+    document.body.setAttribute('arco-theme', 'light');
+  }, []);
   return (
     <div className={styles.container}>
       <div className={styles.logo}>
         <Logo />
-        <div className={styles['logo-text']}>博客后台管理系統</div>
+        <div className={styles['logo-text']}>博客后台管理系统</div>
       </div>
-      {/*<div className={styles.banner}>*/}
-      {/*  <div className={styles['banner-inner']}>*/}
-      {/*    <LoginBanner />*/}
-      {/*  </div>*/}
-      {/*</div>*/}
       <div className={styles.content}>
         <div className={styles['content-inner']}>
           <LoginForm />
@@ -30,8 +24,5 @@ function Login() {
         </div>
       </div>
     </div>
-  )
-}
-Login.displayName = 'LoginPage'
-
-export default Login
+  );
+};

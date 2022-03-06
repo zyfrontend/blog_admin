@@ -1,124 +1,127 @@
-import React, { useContext, useEffect } from 'react'
-import { Tooltip, Avatar, Select, Dropdown, Menu, Message, Button } from '@arco-design/web-react'
+import React from 'react';
 import {
-  IconLanguage,
-  IconSunFill,
-  IconMoonFill,
-  IconSettings,
-} from '@arco-design/web-react/icon'
-import { useSelector, useDispatch } from 'react-redux'
-import { GlobalState } from '@/store'
-import { GlobalContext } from '@/context'
-import useLocale from '@/utils/useLocale'
-import Logo from '@/assets/logo.svg'
-import IconButton from './IconButton'
-import Settings from '../Settings'
-import styles from './style/index.module.less'
-import defaultLocale from '@/locale'
-import useStorage from '@/utils/useStorage'
-import { generatePermission } from '@/routes'
+  Tooltip,
+  Button,
+  Avatar,
+  Select,
+  Typography,
+  Dropdown,
+  Menu,
+  Space,
+  Message,
+} from '@arco-design/web-react';
+import { IconSunFill, IconMoonFill } from '@arco-design/web-react/icon';
+import { useSelector, useDispatch } from 'react-redux';
+import { ReducerState } from '../../redux';
+import useLocale from '../../utils/useLocale';
+import Logo from '../../assets/logo.svg';
+import history from '../../history';
+import { logout } from '../../api/login';
 
-function Navbar({ show }: { show: boolean }) {
-  const t = useLocale()
-  const userInfo = useSelector((state: GlobalState) => state.userInfo)
-  const dispatch = useDispatch()
+// import MessageBox from '../MessageBox';
 
-  const [_, setUserStatus] = useStorage('userStatus')
-  const [role, setRole] = useStorage('userRole', 'admin')
+import styles from './style/index.module.less';
 
-  const { setLang, lang, theme, setTheme } = useContext(GlobalContext)
+function Navbar() {
+  const locale = useLocale();
+  const theme = useSelector((state: ReducerState) => state.global.theme);
+  const userInfo = useSelector((state: ReducerState) => state.login.userInfo);
+  const dispatch = useDispatch();
 
-  function logout() {
-    setUserStatus('logout')
-    window.location.href = '/admin/login'
-  }
-
-  function onMenuItemClick(key) {
+  const onMenuItemClick = async (key) => {
     if (key === 'logout') {
-      logout()
-    } else {
-      Message.info(`You clicked ${key}`)
+      const res: any = await logout();
+      if (res.code === 0) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('userInfo');
+        Message.success(res.msg);
+        history.push('/admin/login');
+      }
     }
-  }
-
-  useEffect(() => {
-    dispatch({
-      type: 'update-userInfo',
-      payload: {
-        userInfo: {
-          ...userInfo,
-          permissions: generatePermission(role),
-        },
-      },
-    })
-  }, [role])
-
-  if (!show) {
-    return (
-      <div className={styles['fixed-settings']}>
-        <Settings trigger={<Button icon={<IconSettings />} type="primary" size="large" />} />
-      </div>
-    )
-  }
-
-  const droplist = (
-    <Menu onClickMenuItem={onMenuItemClick}>
-      <Menu.Item key="switch role">发布文章</Menu.Item>
-      <Menu.Item key="logout">退出登录</Menu.Item>
-    </Menu>
-  )
+  };
 
   return (
     <div className={styles.navbar}>
       <div className={styles.left}>
-        <div className={styles.logo}>
+        <Space size={8}>
           <Logo />
-          <div className={styles['logo-name']}>博客后台管理系统</div>
-        </div>
+          <Typography.Title style={{ margin: 0, fontSize: 18 }} heading={5}>
+            博客后台管理系统
+          </Typography.Title>
+        </Space>
       </div>
       <ul className={styles.right}>
+        {/* <li>
+          <MessageBox />
+        </li>
+        <li>
+          <a>{locale['navbar.docs']}</a>
+        </li> */}
         <li>
           <Select
-            triggerElement={<IconButton icon={<IconLanguage />} />}
             options={[
               { label: '中文', value: 'zh-CN' },
               { label: 'English', value: 'en-US' },
             ]}
-            value={lang}
+            value={localStorage.getItem('arco-lang')}
+            bordered={false}
             triggerProps={{
               autoAlignPopupWidth: false,
               autoAlignPopupMinWidth: true,
-              position: 'br',
+              position: 'bl',
             }}
-            trigger="hover"
-            onChange={value => {
-              setLang(value)
-              const nextLang = defaultLocale[value]
-              Message.info(`${nextLang['message.lang.tips']}${value}`)
+            onChange={(value) => {
+              localStorage.setItem('arco-lang', value);
+              window.location.reload();
             }}
           />
         </li>
         <li>
-          <Tooltip content={theme === 'light' ? t['settings.navbar.theme.toDark'] : t['settings.navbar.theme.toLight']}>
-            <IconButton
-              icon={theme !== 'dark' ? <IconMoonFill /> : <IconSunFill />}
-              onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+          <Tooltip
+            content={
+              theme === 'light'
+                ? locale['settings.navbar.theme.toDark']
+                : locale['settings.navbar.theme.toLight']
+            }
+          >
+            <Button
+              type="text"
+              icon={theme === 'light' ? <IconMoonFill /> : <IconSunFill />}
+              onClick={() =>
+                dispatch({
+                  type: 'toggle-theme',
+                  payload: { theme: theme === 'light' ? 'dark' : 'light' },
+                })
+              }
+              style={{ fontSize: 20 }}
             />
           </Tooltip>
         </li>
-        <Settings />
         {userInfo && (
           <li>
-            <Dropdown droplist={droplist} position="br">
-              <Avatar size={32} style={{ cursor: 'pointer' }}>
-                <img alt="avatar" src={userInfo.avatar} />
-              </Avatar>
+            <Avatar size={24} style={{ marginRight: 8 }}>
+              <img alt="avatar" src={userInfo.avatar} />
+            </Avatar>
+            <Dropdown
+              trigger="click"
+              droplist={
+                <div>
+                  <Menu onClickMenuItem={onMenuItemClick}>
+                    <Menu.Item key="publish">发布文章</Menu.Item>
+                  </Menu>
+                  <Menu onClickMenuItem={onMenuItemClick}>
+                    <Menu.Item key="logout">退出登录</Menu.Item>
+                  </Menu>
+                </div>
+              }
+            >
+              <Typography.Text className={styles.username}>{userInfo.name}</Typography.Text>
             </Dropdown>
           </li>
         )}
       </ul>
     </div>
-  )
+  );
 }
 
-export default Navbar
+export default Navbar;
